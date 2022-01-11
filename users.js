@@ -1,49 +1,22 @@
-const mongoose=require('mongoose');
-const multer=require('multer');
-const path=require('path');
-const AVATAR_PATH=path.join('/uploads/users/avatars');
+const express=require('express');
+const router=express.Router();
+const passport=require('passport');
 
-const userSchema= new mongoose.Schema({
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    password:{
-        type:String,
-        required:true
-    },
-    name:{
-        type:String,
-        required:true
-    },
-    avatar:{
-        type:String,
-        required:true
-    }
-},
-{
-    timestamps:true
-});
+const usersController=require('../controllers/users_controllers');
 
-let storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        
-      cb(null, path.join(__dirname,'..',AVATAR_PATH));
-      
-    },
-    filename: function (req, file, cb) {
-        
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix);
-    }
-  });
+router.get('/profile/:id', passport.checkAuthentication,usersController.profile);
+router.post('/update/:id', passport.checkAuthentication,usersController.update);
 
-  // static 
-  userSchema.statics.uploadedAvatar=multer({storage: storage}).single('avatar');
-  userSchema.statics.avatarPath=AVATAR_PATH;
+router.get('/sign-up',usersController.signUp);
+router.get('/sign-in', usersController.signIn);
 
-const User=mongoose.model('User',userSchema);
-module.exports=User;
+router.post('/create',usersController.create);
+router.post('/create-session',passport.authenticate(
+    'local',
+    {failureRedirect:'/users/sign-in'},
+),usersController.createSession);
 
-
+router.get('/sign-out',usersController.destroySession);
+router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
+router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/users/sign-in'}),usersController.createSession);
+module.exports=router;

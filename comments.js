@@ -1,28 +1,10 @@
-const mongoose=require('mongoose');
+const express=require('express');
+const router=express.Router();
+const passport=require('passport');
 
-const commentSchema=new mongoose.Schema({
-    content:{
-        type:String,
-        required:true
-    },
-    // comment belongs to a user
-    user:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User'
-    },
-    post:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'Post'
-    },
-    likes:[
-    {
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'likes'
-    }
-    ]
-},{
-    timestamps:true
-});
+const commentsController=require('../controllers/comments_controllers');
 
-const Comment=mongoose.model('Comment',commentSchema);
-module.exports=Comment;
+router.post('/create',passport.checkAuthentication,commentsController.create);
+router.get('/destroy/:id',passport.checkAuthentication,commentsController.destroy);
+
+module.exports=router;
