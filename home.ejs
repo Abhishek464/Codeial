@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <title>
+            <%= title %>
+        </title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <link rel="stylesheet" href="/css/user_profile.css">
+        <link rel="stylesheet" href="/css/home.css">
+        <link rel="stylesheet" href="/css/chatbox.css">
+        
+    </head>
+
+    <body>
+       
+        <h1>Codeial/ <%= title%></h1>
+        
+        <%- include('_header') -%>
+        
+       
+    
+        <div id="home-container">
+
+            <section id="feed-posts">
+                <h4>Posts</h4>
+                <% if(locals.user){%>
+                <form action="/posts/create" id="new-post-form" method="POST">
+                    <textarea name="content" cols="30" rows="3" placeholder="Type here....." required></textarea>
+                    <input type="submit" value="Post">
+    
+                </form>
+                <% }%>
+                <div id="posts-list-container">
+                    <ul>
+                    <% for(post of posts){ %>
+                        <%- include('_post') -%>
+                    <% }%>
+                  </ul>
+                </div>
+    
+            </section>
+    
+            <section id="user-friends">
+                <h4>Friends</h4>
+                <% for(u of all_users) {%>
+                    <p>
+                        <a href="/users/profile/<%=u.id%>"><%=u.name%></a>
+                    </p>
+                    <% }%>
+    
+            </section>
+            <%- include('_chatbox') -%>
+        </div>
+
+        <script>
+            <% if(flash.success && flash.success.length>0) { %>
+            new Noty({
+                theme:'relax',
+                text: "<%=flash.success%>",
+                type:'success',
+                layout:'topRight',
+                timeout:1500
+                
+            }).show();
+            <% } %>
+
+            <% if(flash.error && flash.error.length>0) { %>
+            new Noty({
+                theme:'relax',
+                text: "<%=flash.error%>",
+                type:'warning',
+                layout:'topRight',
+                timeout:1500
+                
+            }).show();
+            <% } %>
+
+            <% if (flash.error && flash.error.length > 0) {%>
+                new Noty({
+                    theme: 'relax',
+                    text: "<%= flash.error %>",
+                    type: 'error',
+                    layout: 'topRight',
+                    timeout: 1500
+                    
+                }).show();    
+            <%} %>
+           
+            </script>
+        <script src="/js/home_post.js"></script>
+        <script src="/js/toggle.js"></script>
+        <script>
+            $('.toggle-like-button').each(function(){
+                let self=this;
+                let toggleLike=new ToggleLike(self);
+            });
+        </script>
+        
+        <script src="<script src="https://cdn.socket.io/4.3.2/socket.io.min.js" integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs" crossorigin="anonymous""></script>
+        <script src="/js/chat_engine.js"></script>
+        
+           <% if(locals.user){ %>
+            <script>
+                new ChatEngine('user-chat-box','<%=locals.user.email%>')
+        </script>
+       <%}%>
+    </body>
+</html>
